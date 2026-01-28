@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参考文献梗：玩梗须有界 | 沉浸式体验</title>
+    <style>
+        :root {
+            --bg-color: #05080a;
+            --text-color: #e0e0e0;
+            --accent-color: #00d2ff;
+            --accent-red: #ff3e3e;
+            --gradient-1: rgba(0, 210, 255, 0.15);
+            --gradient-2: rgba(255, 62, 62, 0.1);
+            --blur-strength: 8px;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(0, 210, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            background:
+                radial-gradient(circle at 20% 30%, var(--gradient-1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, var(--gradient-2) 0%, transparent 40%),
+                #05080a;
+            /* 全局平滑过渡 */
+            transition: all 0.3s ease;
+        }
+
+        /* 星空/粒子背景 */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 3D 场景容器 */
+        .scene {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            perspective: 1800px; /* 增强3D效果 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 模拟山谷深度的氛围 - 升级光影效果 */
+        .valley-depth {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(90deg, rgba(0,0,0,0.9) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.9) 100%),
+                repeating-linear-gradient(0deg, transparent 0, transparent 149px, rgba(0,210,255,0.08) 150px);
+            pointer-events: none;
+            z-index: 1;
+            backdrop-filter: blur(1px);
+        }
+
+        /* 光线扫过效果 - 增强 */
+        .light-scan {
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,210,255,0.15), transparent);
+            transform: skewX(-15deg);
+            animation: lightScan 7s infinite linear; /* 加快扫描速度 */
+            pointer-events: none;
+            z-index: 2;
+            /* 添加光晕效果 */
+            box-shadow: 0 0 80px rgba(0,210,255,0.1);
+        }
+
+        @keyframes lightScan {
+            0% { left: -50%; }
+            100% { left: 150%; }
+        }
+
+        .content-wrapper {
+            position: relative;
+            transform-style: preserve-3d;
+            width: 85%;
+            height: 600px; /* 加高容器适配新内容 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3;
+            /* 添加轻微的悬浮效果 */
+            transform: translateY(0px);
+            animation: floatWrapper 6s ease-in-out infinite;
+        }
+
+        /* 容器漂浮动画 */
+        @keyframes floatWrapper {
+            0%, 100% { transform: translateY(0px) translateZ(0); }
+            50% { transform: translateY(-10px) translateZ(10px); }
+        }
+
+        .section {
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            text-align: center;
+            transform: translateZ(-2000px) translateY(80px) scale(0.8);
+            transition: all 1.8s cubic-bezier(0.19, 1, 0.22, 1); /* 更顺滑的过渡 */
+            pointer-events: none;
+            filter: blur(15px);
+            z-index: 4;
+        }
+
+        /* 当前显示的文字 - 增强立体感 */
+        .section.active {
+            opacity: 1;
+            transform: translateZ(0px) translateY(0px) scale(1);
+            pointer-events: auto;
+            filter: blur(0px);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        /* 已经点击穿过的文字 - 更自然的远去效果 */
+        .section.passed {
+            opacity: 0;
+            transform: translateZ(1200px) translateY(-150px) scale(0.6);
+            filter: blur(25px);
+        }
+
+        /* 文字样式升级 */
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            letter-spacing: 20px;
+            color: var(--accent-color);
+            text-shadow:
+                0 0 10px rgba(0,210,255,0.4),
+                0 0 30px rgba(0,210,255,0.3),
+                0 0 60px rgba(0,210,255,0.2);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            animation: linePulse 3s infinite;
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            letter-spacing: 10px;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(0,210,255,0.3);
+            /* 添加文字发光动画 */
+            animation: textGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 10px rgba(0,210,255,0.3); }
+            100% { text-shadow: 0 0 20px rgba(0,210,255,0.5), 0 0 30px rgba(0,210,255,0.3); }
+        }
+
+        h3 {
+            font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        @keyframes linePulse {
+            0%, 100% { width: 50%; opacity: 0.7; }
+            50% { width: 70%; opacity: 1; }
+        }
+
+        /* 核心文本字号统一改为1.25rem */
+        p {
+            font-size: 1.25rem;
+            line-height: 2.2;
+            max-width: 800px;
+            margin: 0 auto;
+            letter-spacing: 3px;
+            opacity: 0.95;
+        }
+
+        /* 高亮文字升级 - 动态下划线 */
+        .highlight {
+            color: var(--accent-red);
+            font-weight: 600;
+            position: relative;
+            /* 添加文字发光效果 */
+            text-shadow: 0 0 8px rgba(255,62,62,0.4);
+        }
+
+        .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-red);
+            transform: scaleX(0);
+            transform-origin: left;
+            animation: highlightLine 1s ease forwards 0.5s;
+            /* 添加下划线发光 */
+            box-shadow: 0 0 5px var(--accent-red);
+        }
+
+        @keyframes highlightLine {
+            to { transform: scaleX(1); }
+        }
+
+        /* 玩梗边界滑块样式 - 增强 */
+        .boundary-slider {
+            height: 8px;
+            background: linear-gradient(to right, #10b981, #f59e0b, #ef4444);
+            border-radius: 4px;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.3), 0 0 10px rgba(16,185,129,0.2);
+            max-width: 700px;
+            margin: 20px auto 30px;
+            /* 添加渐变发光 */
+            background-image: linear-gradient(to right,
+                #10b981, #10b981 33%,
+                #f59e0b 33%, #f59e0b 66%,
+                #ef4444 66%, #ef4444);
+        }
+
+        .boundary-dot {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0,210,255,0.6), 0 2px 6px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.8);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            /* 添加脉冲动画 */
+            animation: pulseDot 3s infinite ease-in-out;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(0,210,255,0.6), 0 2px 6px rgba(0,0,0,0.3), 0 0 10px rgba(255,255,255,0.8); }
+            50% { box-shadow: 0 0 0 4px rgba(0,210,255,0.8), 0 4px 8px rgba(0,0,0,0.2), 0 0 15px rgba(255,255,255,1); }
+        }
+
+        .boundary-dot:hover {
+            transform: translateY(-50%) scale(1.2);
+            box-shadow: 0 0 0 4px rgba(0,210,255,0.8), 0 4px 8px rgba(0,0,0,0.2), 0 0 15px rgba(255,255,255,1);
+        }
+
+        .boundary-labels {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            font-size: clamp(1.05rem, 1.5vw, 1.05rem);
+            color: rgba(224, 224, 224, 0.8);
+        }
+
+        /* 图表容器样式 - 适配整体风格 */
+        .chart-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            backdrop-filter: blur(12px);
+            box-shadow:
+                0 10px 30px rgba(0,0,0,0.2),
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                0 0 20px rgba(0,210,255,0.05);
+            max-width: 90%;
+            margin: 20px auto;
+            padding: 20px;
+            /* 关键修复：确保容器有明确的尺寸 */
+            min-height: 350px;
+        }
+
+        .chart-container h3 {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px; /* 适配页面高度 */
+            width: 100%;
+            /* 关键修复：确保容器可见 */
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+            /* 关键修复：避免3D变换影响 */
+            transform: translateZ(0);
+        }
+
+        .source {
+            text-align: right;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #ccc;
+            letter-spacing: 1px;
+        }
+
+        /* 结语卡片样式 - 重构文字排版 */
+        .conclusion-card {
+            background: rgba(29, 78, 216, 0.2);
+            border: 1px solid rgba(0, 210, 255, 0.5);
+            padding: 50px 40px; /* 增加内边距 */
+            border-radius: 16px; /* 更大圆角 */
+            backdrop-filter: blur(15px); /* 增强模糊 */
+            box-shadow:
+                0 15px 40px rgba(0,0,0,0.25),
+                inset 0 1px 0 rgba(255,255,255,0.1),
+                0 0 30px rgba(0,210,255,0.1); /* 添加外发光 */
+            max-width: 750px; /* 加宽卡片 */
+            margin: 20px auto;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .conclusion-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-red));
+            /* 添加渐变条动画 */
+            animation: gradientMove 4s infinite linear;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        /* 结语卡片文字排版 - 小字+大字组合 */
+        .conclusion-card .small-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: rgba(224, 224, 224, 0.9);
+            margin-bottom: 15px;
+        }
+
+        .conclusion-card .big-text {
+            font-size: clamp(1.8rem, 4vw, 2.8rem); /* 加大字号 */
+            line-height: 1.5;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(0,210,255,0.4);
+            /* 添加文字渐变 */
+            background: linear-gradient(90deg, var(--accent-color), #ffffff, var(--accent-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .conclusion-card .small-text:last-child {
+            margin-top: 15px;
+            margin-bottom: 0;
+        }
+
+        /* 按钮美化 - 增强光效 */
+        .button-glow {
+            padding: 20px 60px;
+            font-size: 1.2rem;
+            background: rgba(0, 210, 255, 0.05);
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease;
+            margin-top: 40px;
+            border-radius: 50px;
+            letter-spacing: 3px;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            /* 增强按钮样式 */
+            box-shadow: 0 0 15px rgba(0,210,255,0.1);
+        }
+
+        .button-glow::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,210,255,0.3), transparent);
+            transition: all 0.8s ease;
+        }
+
+        .button-glow:hover {
+            background: var(--accent-color);
+            color: #000;
+            box-shadow:
+                0 0 25px var(--accent-color),
+                0 0 50px rgba(0,210,255,0.5),
+                0 0 80px rgba(0,210,255,0.3);
+            transform: translateY(-3px) scale(1.05); /* 轻微放大 */
+        }
+
+        .button-glow:hover::before {
+            left: 100%;
+        }
+
+        /* 提示框样式 - 增强 */
+        .tooltip {
+            position: absolute;
+            background: rgba(5,8,10,0.95);
+            border: 1px solid var(--accent-red);
+            color: var(--text-color);
+            padding: 12px 18px; /* 增加内边距 */
+            border-radius: 10px; /* 更大圆角 */
+            font-size: 1.25rem;
+            max-width: 280px; /* 加宽 */
+            z-index: 100;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4), 0 0 10px rgba(255,62,62,0.2);
+            backdrop-filter: blur(8px);
+            /* 添加轻微动画 */
+            animation: tooltipPop 0.3s ease forwards;
+        }
+
+        @keyframes tooltipPop {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 上一页/下一页按钮 - 增强 */
+        .prev-button, .next-button {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            z-index: 99;
+            /* 添加按钮发光 */
+            box-shadow: 0 0 15px rgba(0,210,255,0.1);
+        }
+
+        .prev-button {
+            top: 50px;
+        }
+
+        .next-button {
+            bottom: 50px;
+        }
+
+        /* 按钮通用悬停效果 */
+        .prev-button:hover, .next-button:hover {
+            background: rgba(0, 210, 255, 0.2);
+            box-shadow: 0 0 20px var(--accent-color), 0 0 40px rgba(0,210,255,0.3);
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        /* 按钮禁用状态 */
+        .prev-button:disabled, .next-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: translateX(-50%) scale(1);
+            box-shadow: none;
+        }
+
+        .prev-button i, .next-button i {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(5px); }
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                width: 95%;
+                height: 550px;
+            }
+
+            h1 {
+                letter-spacing: 10px;
+                font-size: clamp(2rem, 5vw, 3rem);
+            }
+
+            h2 {
+                letter-spacing: 5px;
+                font-size: clamp(1.5rem, 3vw, 2.2rem);
+            }
+
+            p {
+                letter-spacing: 2px;
+                line-height: 2;
+                padding: 0 20px;
+                font-size: 1.25rem;
+            }
+
+            .chart-container {
+                padding: 15px;
+                margin: 10px auto;
+                max-width: 95%;
+                min-height: 280px;
+            }
+
+            .chart-wrapper {
+                height: 280px;
+            }
+
+            .conclusion-card {
+                padding: 30px 20px;
+                margin: 10px;
+                max-width: 95%;
+            }
+
+            .conclusion-card .big-text {
+                font-size: clamp(1.5rem, 5vw, 2.2rem);
+            }
+
+            .boundary-slider {
+                margin: 15px auto;
+                max-width: 90%;
+            }
+
+            .button-glow {
+                padding: 15px 40px;
+                font-size: 1rem;
+            }
+
+            /* 移动端按钮适配 */
+            .prev-button {
+                top: 30px;
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+
+            .next-button {
+                bottom: 30px;
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+
+            .tooltip {
+                font-size: 1.1rem;
+                max-width: 250px;
+            }
+
+            .boundary-labels {
+                font-size: 1.05rem;
+            }
+
+            .source {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+    <!-- 引入Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div class="bg-particles" id="particles"></div>
+
+    <div class="scene">
+        <div class="valley-depth"></div>
+        <div class="light-scan"></div>
+
+        <div class="content-wrapper">
+            <!-- 第0页：修改后的第一页 -->
+            <div class="section active" id="s0">
+                <h2>玩梗须有界</h2>
+                <p class="mb-6">
+                    问题的症结不在于<span class="highlight">“参考文献”</span>这一个网络梗本身，<br>
+                    而在于我们如何界定“玩梗”与“网暴”的边界。
+                </p>
+
+                <div class="boundary-slider">
+                    <div class="boundary-dot" style="left: 20%" onmouseover="showTooltip(this, '创意表达：健康的玩梗，仅针对现象，不伤害他人')" onmouseout="hideTooltip()"></div>
+                    <div class="boundary-dot" style="left: 80%" onmouseover="showTooltip(this, '网络暴力：针对个人的恶意攻击，践踏他人尊严')" onmouseout="hideTooltip()"></div>
+                </div>
+                <div class="boundary-labels">
+                    <span>创意表达</span>
+                    <span>网络暴力</span>
+                </div>
+            </div>
+
+            <!-- 第1页：插入图表 -->
+            <div class="section" id="s1">
+                <h2></h2>
+                <p style="margin-top: 30px;">
+                    在日常生活中，“玩梗”确实是社交常态，但一旦盲目从众，<br>
+                    践踏了<span class="highlight">“尊严”的底线</span>，越过了<span class="highlight">“善意”的边界</span>，<br>
+                    便会沦为人身攻击、盲目贴标签的利器。
+                </p>
+
+                <!-- 插入网络暴力界限判断图表 -->
+                <div class="chart-container">
+                    <h3>您判断某一评论是否是网络暴力的界限是？</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="networkViolenceChart"></canvas>
+                    </div>
+                    <p class="source">数据来源：调研工厂 | 澎湃号 @调研工厂</p>
+                </div>
+            </div>
+
+            <!-- 第2页：表达自由的克制 -->
+            <div class="section" id="s2">
+                <h2></h2>
+                <p style="margin-bottom: 40px;">
+                    网络空间的表达自由，从来不是“想说就说”的肆意，<br>
+                    而是<span class="highlight">“换位思考”</span>的克制。
+                </p>
+                <p>
+                    玩梗的本质是“创意表达”，而非伤人利器。<br>
+                    就像“参考文献”梗最初以反差趣味消解交流尴尬，<br>
+                    “有趣”才是大众玩梗的初衷。
+                </p>
+            </div>
+
+            <!-- 第3页：新增页面 - 不逾矩的克制 -->
+            <div class="section" id="s3">
+                <h2></h2>
+                <p style="margin-top: 50px;">
+                    如何守住这份趣味，不让玩梗沦为网暴遮羞布，关键在于<span class="highlight">“不逾矩”的克制</span>。<br>
+                    唯有守住尊重的底线、明确玩梗须有界，<br>
+                    才能让这类创意表达真正服务于良性交流，<br>
+                    而非沦为网络暴力的工具。
+                </p>
+            </div>
+
+            <!-- 第4页：最后一页（结语卡片 + 按钮） -->
+            <div class="section" id="s4">
+                <h2></h2>
+                <div class="conclusion-card">
+                    <p class="small-text">毕竟，网络空间的温度，从来都藏在</p>
+                    <p class="big-text">“己所不欲，勿施于人”</p>
+                    <p class="small-text">的共情里，藏在这份不越界的克制中。</p>
+                </div>
+                <button class="button-glow" onclick="event.stopPropagation(); finish()">
+                    调查结束，前往发送调查报告
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上一页按钮（顶部居中） -->
+    <button class="prev-button" id="prevBtn" onclick="prevStep()" disabled>
+        <i>↑</i>
+    </button>
+
+    <!-- 下一页按钮（底部居中） -->
+    <button class="next-button" id="nextBtn" onclick="nextStep()">
+        <i>↓</i>
+    </button>
+
+    <script>
+        let currentStep = 0;
+        const sections = document.querySelectorAll('.section');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let tooltip = null;
+        let networkViolenceChart = null; // 图表实例
+
+        // ========== 1. 核心交互逻辑 ==========
+        // 下一页
+        function nextStep() {
+            if (currentStep < sections.length - 1) {
+                // 当前页标记为已过
+                sections[currentStep].classList.replace('active', 'passed');
+
+                // 下一页显示
+                currentStep++;
+                sections[currentStep].classList.add('active');
+
+                // 更新按钮状态
+                updateButtonStates();
+
+                // 如果切换到第1页，延迟初始化图表（确保容器已显示）
+                if (currentStep === 1) {
+                    // 延迟执行，确保CSS过渡完成
+                    setTimeout(() => {
+                        initChart();
+                    }, 500);
+                }
+            }
+        }
+
+        // 上一页
+        function prevStep() {
+            if (currentStep > 0) {
+                // 当前页隐藏
+                sections[currentStep].classList.remove('active');
+
+                // 上一页恢复显示
+                currentStep--;
+                sections[currentStep].classList.replace('passed', 'active');
+
+                // 更新按钮状态
+                updateButtonStates();
+
+                // 如果回到第1页，确保图表已渲染
+                if (currentStep === 1 && !networkViolenceChart) {
+                    setTimeout(() => {
+                        initChart();
+                    }, 300);
+                }
+            }
+        }
+
+        // 更新按钮禁用/启用状态
+        function updateButtonStates() {
+            // 第一页时禁用上一页按钮
+            prevBtn.disabled = currentStep === 0;
+
+            // 最后一页时禁用下一页按钮
+            nextBtn.disabled = currentStep === sections.length - 1;
+        }
+
+        function finish() {
+            // 美化提示框（替代原生alert）
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(5,8,10,0.95);
+                border: 1px solid var(--accent-color);
+                border-radius: 15px;
+                padding: 40px 60px;
+                backdrop-filter: blur(15px);
+                box-shadow: 0 0 40px rgba(0,210,255,0.2), 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 999;
+                text-align: center;
+                max-width: 90%;
+                width: 500px;
+                /* 添加轻微动画 */
+                animation: modalPop 0.5s ease forwards;
+            `;
+
+            // 模态框弹出动画
+            document.head.insertAdjacentHTML('beforeend', `
+                <style>
+                    @keyframes modalPop {
+                        0%, 100% { transform: translateY(0) translateX(0); }
+                        25% { transform: translateY(-20px) translateX(15px); }
+                        50% { transform: translateY(-10px) translateX(-15px); }
+                        75% { transform: translateY(-15px) translateX(10px); }
+                    }
+                </style>
+            `);
+
+            modal.innerHTML = `
+                <h3 style="color: var(--accent-color); margin-bottom: 20px; letter-spacing: 2px; font-size: 1.5rem;">调查报告发送成功</h3>
+                <p style="font-size: 1.25rem; line-height: 1.8; margin-bottom: 20px;">
+                    您已完成「玩梗须有界」沉浸式调查，核心认知总结：<br><br>
+                    1. 玩梗的核心是创意表达，而非人身攻击<br>
+                    2. 网络表达需要换位思考的克制<br>
+                    3. 守住尊重底线，才能让交流更有温度
+                </p>
+                <button style="
+                    margin-top: 25px;
+                    padding: 12px 35px;
+                    background: var(--accent-color);
+                    color: #000;
+                    border: none;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    font-size: 1.25rem;
+                    letter-spacing: 2px;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 0 15px var(--accent-color);
+                " onclick="document.body.removeChild(modal)">确认</button>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // ========== 2. 提示框功能 ==========
+        function showTooltip(element, text) {
+            // 移除现有提示框
+            if (tooltip) {
+                document.body.removeChild(tooltip);
+            }
+
+            // 创建新提示框
+            tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.textContent = text;
+
+            // 计算位置
+            const rect = element.getBoundingClientRect();
+            tooltip.style.top = `${rect.bottom + window.scrollY + 10}px`;
+            tooltip.style.left = `${rect.left + window.scrollX - (tooltip.offsetWidth / 2) + (element.offsetWidth / 2)}px`;
+
+            document.body.appendChild(tooltip);
+        }
+
+        function hideTooltip() {
+            if (tooltip) {
+                document.body.removeChild(tooltip);
+                tooltip = null;
+            }
+        }
+
+        // ========== 3. 初始化网络暴力界限图表 ==========
+        function initChart() {
+            // 如果图表已存在，先销毁
+            if (networkViolenceChart) {
+                networkViolenceChart.destroy();
+            }
+
+            // 获取canvas元素
+            const ctx = document.getElementById('networkViolenceChart');
+            if (!ctx) return;
+
+            // 确保canvas尺寸正确
+            const wrapper = ctx.parentElement;
+            const rect = wrapper.getBoundingClientRect();
+            ctx.width = rect.width;
+            ctx.height = rect.height;
+
+            // 调研数据
+            const surveyData = {
+                labels: [
+                    "是否给受害人的生活造成干扰",
+                    "是否对网络氛围有不良引导作用",
+                    "是否违背道德准则",
+                    "是否触犯法律（如：诽谤、破坏名誉等）",
+                    "是否给人造成身心伤害",
+                    "可以没有明确的界限",
+                    "其他"
+                ],
+                values: [60.2, 58.0, 53.2, 45.1, 45.1, 8.3, 0.5]
+            };
+
+            // 配置Chart.js
+            networkViolenceChart = new Chart(ctx, {
+                type: 'bar', // 柱状图类型
+                data: {
+                    labels: surveyData.labels,
+                    datasets: [{
+                        label: '占比（%）',
+                        data: surveyData.values,
+                        backgroundColor: 'rgba(255, 105, 180, 0.7)', // 粉色（适配暗色背景）
+                        borderColor: 'rgba(255, 105, 180, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5, // 圆角
+                        hoverBackgroundColor: 'rgba(255, 20, 147, 0.8)', // 悬浮颜色
+                        hoverBorderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y', // 横向柱状图
+                    plugins: {
+                        legend: {
+                            display: false // 隐藏图例
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(255, 105, 180, 1)',
+                            borderWidth: 1,
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    return `占比：${context.raw}%`;
+                                }
+                            }
+                        },
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 70, // 适配最大数据60.2%
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#e0e0e0',
+                                font: {
+                                    size: 12,
+                                    family: "Microsoft YaHei"
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#e0e0e0',
+                                font: {
+                                    size: 13,
+                                    family: "Microsoft YaHei"
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+
+            // 窗口大小变化时更新图表
+            window.addEventListener('resize', function() {
+                if (networkViolenceChart) {
+                    networkViolenceChart.resize();
+                }
+            });
+        }
+
+        // ========== 4. 粒子背景效果 ==========
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 100; // 增加粒子数量
+
+            // 清空容器防止重复创建
+            container.innerHTML = '';
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+
+                // 随机粒子样式
+                const size = Math.random() * 3 + 1; // 增大粒子尺寸
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                const opacity = Math.random() * 0.8 + 0.2;
+                const duration = Math.random() * 30 + 10; // 延长动画时间
+                const delay = Math.random() * 5;
+
+                particle.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    background: ${Math.random() > 0.5 ? 'var(--accent-color)' : 'var(--accent-red)'};
+                    border-radius: 50%;
+                    top: ${posY}%;
+                    left: ${posX}%;
+                    opacity: ${opacity};
+                    pointer-events: none;
+                    animation: float ${duration}s ease-in-out ${delay}s infinite;
+                    /* 添加粒子发光 */
+                    box-shadow: 0 0 ${size * 2}px rgba(0,210,255,0.3);
+                `;
+
+                container.appendChild(particle);
+            }
+        }
+
+        // 粒子漂浮动画
+        document.head.insertAdjacentHTML('beforeend', `
+            <style>
+                @keyframes float {
+                    0%, 100% { transform: translateY(0) translateX(0); }
+                    25% { transform: translateY(-20px) translateX(15px); }
+                    50% { transform: translateY(-10px) translateX(-15px); }
+                    75% { transform: translateY(-15px) translateX(10px); }
+                }
+            </style>
+        `);
+
+        // 初始化
+        createParticles();
+        updateButtonStates(); // 初始检查按钮状态
+
+        // 窗口大小变化时重新创建粒子
+        window.addEventListener('resize', createParticles);
+    </script>
+</body>
+</html>
